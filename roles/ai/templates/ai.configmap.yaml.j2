@@ -13,6 +13,13 @@ data:
   ENABLE_ADDITIONAL_CONTEXT: "true"
   DEPLOYMENT_MODE: "onprem"
 
+  # {manstis} Do we want to expose this for customers?
+  # See https://issues.redhat.com/browse/AAP-21787
+  DEPLOYED_REGION: "onprem"
+
+  # Always disabled for "on prem"
+  ENABLE_HEALTHCHECK_SECRET_MANAGER: "false"
+
   # Custom user variables
 {% for item in extra_settings | default([]) %}
   {{ item.setting | upper }}: "{{ item.value }}"
