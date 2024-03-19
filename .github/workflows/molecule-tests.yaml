@@ -20,7 +20,6 @@ jobs:
         pip install molecule
         molecule --version
         pip install kubernetes
-        kubectl version
 
     - name: Start minikube
       uses: medyagh/setup-minikube@latest
