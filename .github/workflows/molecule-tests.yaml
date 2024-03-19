@@ -1,0 +1,42 @@
+name: Molecule Tests
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Molecule Tests
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_CONFIG_JSON: ${{ secrets.TESTING_DOCKER_CONFIG_JSON }}
+      OPERATOR_IMAGE: manstis/aiconnect:0.0.3
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m venv ./venv
+        source ./venv/bin/activate
+        pip install ansible
+        pip install molecule
+        pip install kubernetes
+
+    - name: Run minikube
+      run: minikube start
+
+    - name: Run molecule tests
+      run: molecule test
+
+    - name: Report to slack
+      id: slack
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        payload: |
+          {
+            "text": "Lightspeed Operator Molecule Tests: ${{ job.status }}\nLink: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      if: ${{ always() }}
