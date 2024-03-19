@@ -21,10 +21,18 @@ minikube start
 
 The `DOCKER_CONFIG_JSON` value should be obtained from your local `.docker/config.json` file.
 
+
 ```
 export OPERATOR_IMAGE=manstis/aiconnect:0.0.3
 export DOCKER_CONFIG_JSON=`base64 --wrap=0 ~/.docker/config.json`
 ```
+
+For setting `DOCKER_CONFIG_JSON` on Mac, the `base64` usage is a bit different:
+
+```
+export DOCKER_CONFIG_JSON=`base64 -i ~/.docker/config.json`
+```
+
 
 ## Run tests
 ```
