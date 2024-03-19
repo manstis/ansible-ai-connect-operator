@@ -29,7 +29,9 @@ jobs:
       run: kubectl get pods -A
 
     - name: Run molecule tests
-      run: molecule test
+      run: | 
+        molecule --version
+        molecule test
 
     - name: Report to slack
       id: slack
