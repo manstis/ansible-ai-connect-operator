@@ -17,7 +17,7 @@ jobs:
       run: |
         pip install ansible
         ansible --version
-        pip install molecule
+        pip install molecule==24.2.0
         molecule --version
         pip install kubernetes
 
