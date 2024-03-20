@@ -26,13 +26,10 @@ jobs:
 
     - name: Start minikube
       uses: medyagh/setup-minikube@latest
-  
-    - name: Check pods status
-      run: kubectl get pods -n ansible-ai-connect-operator-system
 
     - name: Run molecule tests
       run: |
-        molecule test
+        molecule test --destroy=never
 
     - name: Report to slack
       id: slack
