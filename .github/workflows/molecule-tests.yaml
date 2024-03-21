@@ -15,21 +15,23 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.10' 
+        python-version: '3.11' 
     - run: |
         python -m pip install --upgrade pip
-        pip install ansible
+        pip install ansible==9.3.0
         ansible --version
         pip install molecule==24.2.0
         molecule --version
-        pip install kubernetes
+        pip install kubernetes==29.0.0
 
     - name: Start minikube
       uses: medyagh/setup-minikube@latest
 
-    - name: Run molecule tests
-      run: |
-        molecule test --destroy=never
+    - name: Molecule
+      uses: gofrolist/molecule-action@v2
+      with:
+        molecule_options: --destroy=never
+        molecule_command: test
 
     - name: Report to slack
       id: slack
