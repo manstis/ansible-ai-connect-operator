@@ -30,7 +30,6 @@ jobs:
     - name: Molecule
       uses: gofrolist/molecule-action@v2
       with:
-        molecule_options: --destroy=never
         molecule_command: test
 
     - name: Report to slack
