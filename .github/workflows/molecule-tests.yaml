@@ -27,10 +27,8 @@ jobs:
     - name: Start minikube
       uses: medyagh/setup-minikube@latest
 
-    - name: Molecule
-      uses: gofrolist/molecule-action@v2
-      with:
-        molecule_command: test
+    - name: Run molecule tests
+      run: molecule test
 
     - name: Report to slack
       id: slack
