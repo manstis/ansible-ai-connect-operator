@@ -28,7 +28,7 @@ jobs:
       uses: medyagh/setup-minikube@latest
 
     - name: Run molecule tests
-      run: molecule test --parallel
+      run: sudo molecule test --parallel
 
     - name: Report to slack
       id: slack
