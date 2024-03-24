@@ -18,21 +18,18 @@ jobs:
         python-version: '3.11' 
     - run: |
         python -m pip install --upgrade pip
-
-    - uses: getsentry/action-setup-venv@v2.0.0
-      id: venv
-      with:
-        python-version: 3.11
-        install-cmd: |
-          pip install ansible==9.3.0
-          pip install molecule==24.2.0
-          pip install kubernetes==29.0.0        
+        pip install ansible==9.3.0
+        pip install molecule==24.2.0
+        pip install kubernetes==29.0.0 
 
     - name: Start minikube
       uses: medyagh/setup-minikube@latest
 
     - name: Run molecule tests
-      run: molecule test
+      run: |
+        python3.11 -m venv env
+        source env/bin/activate
+        molecule test
 
     - name: Report to slack
       id: slack
