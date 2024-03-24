@@ -5,7 +5,7 @@ on:
 jobs:
   build:
     name: Molecule Tests
-    runs-on: macos-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKER_CONFIG_JSON: ${{ secrets.TESTING_DOCKER_CONFIG_JSON }}
       OPERATOR_IMAGE: manstis/aiconnect:0.0.3
@@ -23,12 +23,9 @@ jobs:
         pip install molecule==24.2.0
         molecule --version
         pip install kubernetes==29.0.0
-        brew install hyperkit
 
     - name: Start minikube
       uses: medyagh/setup-minikube@latest
-      with:
-        driver: hyperkit
 
     - name: Run molecule tests
       run: molecule test
