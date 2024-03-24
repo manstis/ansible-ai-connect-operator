@@ -5,7 +5,7 @@ on:
 jobs:
   build:
     name: Molecule Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       DOCKER_CONFIG_JSON: ${{ secrets.TESTING_DOCKER_CONFIG_JSON }}
       OPERATOR_IMAGE: manstis/aiconnect:0.0.3
