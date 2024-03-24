@@ -26,6 +26,8 @@ jobs:
 
     - name: Start minikube
       uses: medyagh/setup-minikube@latest
+      with:
+        driver: hyperkit
 
     - name: Run molecule tests
       run: molecule test
