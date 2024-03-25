@@ -26,10 +26,9 @@ jobs:
       uses: medyagh/setup-minikube@latest
 
     - name: Run molecule tests
-      run: |
-        python3.11 -m venv env
-        source env/bin/activate
-        molecule test
+      uses: gofrolist/molecule-action@v2
+      with:
+        molecule_command: test
 
     - name: Report to slack
       id: slack
