@@ -29,6 +29,7 @@ jobs:
       uses: gofrolist/molecule-action@v2
       with:
         molecule_command: test
+        molecule_args: --destroy never
 
     - name: Report to slack
       id: slack
