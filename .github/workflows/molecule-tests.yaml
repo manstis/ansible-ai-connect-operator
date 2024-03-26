@@ -30,6 +30,7 @@ jobs:
     - name: Check pods status
       run: |
         kubectl get pods -A
+        kubectl version --client
         
     - name: Run molecule tests
       uses: gofrolist/molecule-action@v2
