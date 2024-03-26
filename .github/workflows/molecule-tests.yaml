@@ -33,7 +33,10 @@ jobs:
         kubectl version --client
         
     - name: Run molecule tests
-      run: molecule test --destroy=never
+      run: |
+        python3 -m venv ./venv
+        source ./venv/bin/activate
+        molecule test --destroy=never
 
     - name: Report to slack
       id: slack
