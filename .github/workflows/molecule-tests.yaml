@@ -5,6 +5,7 @@ on:
 jobs:
   build:
     name: Molecule Tests
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     env:
       DOCKER_CONFIG_JSON: ${{ secrets.TESTING_DOCKER_CONFIG_JSON }}
