@@ -17,28 +17,25 @@ jobs:
       with:
         python-version: '3.11' 
     - run: |
-        python -m pip install --upgrade pip
-        pip install ansible==9.3.0
+        python3 -m pip install --upgrade pip
+        python3 -m venv ./venv
+        source ./venv/bin/activate
+        pip install ansible
         pip install molecule==24.2.0
         pip install kubernetes==29.0.0 
 
     - name: Start minikube
       uses: medyagh/setup-minikube@latest
 
-    - name: Sleep for 10 minutes
-      run: sleep 10m
-      shell: bash
-
     - name: Check pods status
       run: |
-        kubectl get all
         kubectl get pods -A
         
     - name: Run molecule tests
       uses: gofrolist/molecule-action@v2
       with:
         molecule_command: test
-        molecule_args: --destroy never
+        molecule_args: --destroy=never
 
     - name: Report to slack
       id: slack
