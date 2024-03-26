@@ -36,7 +36,7 @@ jobs:
       run: |
         python3 -m venv ./venv
         source ./venv/bin/activate
-        molecule test --destroy=never
+        molecule test
 
     - name: Report to slack
       id: slack
