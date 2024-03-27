@@ -10,8 +10,6 @@
     - import_tasks: kustomize.yml
       vars:
         state: absent
-      tags:
-        - always
 
     - name: Destroy Namespace
       k8s:
@@ -19,12 +17,18 @@
         kind: Namespace
         name: '{{ namespace }}'
         state: absent
-      tags:
-        - always
+
+    - name: Unset testing image
+      command: '{{ kustomize }} edit set image testing=testing-operator'
+      args:
+        chdir: '{{ config_dir }}/testing'
 
     - name: Unset pull policy
       command: '{{ kustomize }} edit remove patch --path pull_policy/{{ operator_pull_policy }}.yaml'
       args:
         chdir: '{{ config_dir }}/testing'
-      tags:
-        - always
+
+    - name: Unset testing namespace
+      command: '{{ kustomize }} edit set namespace osdk-test'
+      args:
+        chdir: '{{ config_dir }}/testing'
