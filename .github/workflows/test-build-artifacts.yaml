@@ -67,7 +67,6 @@ jobs:
         with:
           repository: "ansible-ai-connect-bundle"
           registries: ${{ github.event.inputs.repository }}
-          fullName: true
         env:
           INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # ===============================
@@ -78,6 +77,8 @@ jobs:
       - name: Get latest tag
         id: latest_tag
         uses: WyriHaximus/github-action-get-previous-tag@v1
+        with:
+          fallback: 0.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # ===============================
@@ -135,6 +136,21 @@ jobs:
       - name: Build Bundle image
         run: |
           make bundle bundle-build VERSION=${{ github.event.inputs.version }} IMG=${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }} BUNDLE_IMG=ansible-ai-connect-bundle:${{ github.event.inputs.version }}
+
+      - name: Update ClusterServiceVersion
+        run: |
+          # No need to set 'replaces' if there is no previous version
+          if [[ ${{ steps.latest_tag.outputs.tag }} == "0.0.0" ]]; then
+            >&2 echo "No previous version found."
+            exit 0
+          fi
+          
+          # Set 'replaces' to previous version
+          VERSION = ${{ github.event.inputs.version }}
+          PREV_VERSION = ${{ steps.latest_tag.outputs.tag }}
+          if ! grep -qF 'replaces: ansible-ai-connect-operator.v${PREV_VERSION}' bundle/manifests/ansible-ai-connect-operator.clusterserviceversion.yaml; then
+            sed -i "/version: ${VERSION}/a \\  replaces: ansible-ai-connect-operator.v${PREV_VERSION}" ./bundle/manifests/ansible-ai-connect-operator.clusterserviceversion.yaml
+          fi
 
       - name: Push Bundle image
         uses: redhat-actions/push-to-registry@v2.7.1
