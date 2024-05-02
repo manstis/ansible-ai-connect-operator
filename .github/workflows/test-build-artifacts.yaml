@@ -93,9 +93,7 @@ jobs:
 
       - name: Publish Image to registry
         run: |
-          docker buildx imagetools create \ 
-          ghcr.io/${{ github.repository_owner }}/ansible-ai-connect-operator:${{ github.sha }} \ 
-          -t ${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }}
+          docker buildx imagetools create ghcr.io/${{ github.repository_owner }}/ansible-ai-connect-operator:${{ github.sha }} -t ${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }}
       # ===================
 
       # ===================
