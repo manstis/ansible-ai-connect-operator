@@ -85,20 +85,17 @@ jobs:
       # ===================
       # Operator
       # -------------------
-      - name: Build and store Operator image @ghcr
+      - name: Build and Store Image @ghcr
         run: |
           BUILD_ARGS="--build-arg OPERATOR_VERSION=${{ github.event.inputs.version }}" \
-          IMG=${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }} \
+          IMG=ghcr.io/${{ github.repository_owner }}/ansible-ai-connect-operator:${{ github.sha }} \
           make docker-buildx
 
-      - name: Push Operator image
-        uses: redhat-actions/push-to-registry@v2.7.1
-        with:
-          image: ansible-ai-connect-operator
-          tags: ${{ github.event.inputs.version }}
-          registry: ${{ github.event.inputs.repository }}
-          username: ${{ secrets.QUAY_USER }}
-          password: ${{ secrets.QUAY_TOKEN }}
+      - name: Publish Image to registry
+        run: |
+          docker buildx imagetools create \ 
+          ghcr.io/${{ github.repository_owner }}/ansible-ai-connect-operator:${{ github.sha }} \ 
+          -t ${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }}
       # ===================
 
       # ===================
