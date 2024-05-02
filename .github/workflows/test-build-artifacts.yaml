@@ -56,7 +56,18 @@ jobs:
       - name: Get existing versions
         id: existing_versions
         run: |
-            echo "BUNDLE_IMGS=${{ steps.existing_tags.outputs.tags }}" >> $GITHUB_ENV
+          set -e
+          
+          tags_array=(${{ steps.existing_tags.outputs.tags//,/ }})
+          filtered_tags=()
+          for i in "${!tags_array[@]}" ; do [[ ${tags_array[$i]} =~ ^.+:[0-9]+\.[0-9]+\.[0-9]+$ ]] && filtered_tags+=(${tags_array[$i]}) ; done
+          
+          filtered_tags+=(${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${{ github.event.inputs.version }})
+          output_tags=${filtered_tags[@]}
+          output=${output_tags// /,}
+          echo "BUNDLE_IMGS=${output}" >> $GITHUB_ENV
+          
+          exit 0
 
       # ===================
       # Operator
@@ -103,7 +114,7 @@ jobs:
       - name: Build Catalog Image
         run: |
           CATALOG_IMG=${{ github.event.inputs.repository }}/ansible-ai-connect-catalog:${{ github.event.inputs.version }} \ 
-          BUNDLE_IMGS=${BUNDLE_IMGS},${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${{ github.event.inputs.version }} \ 
+          BUNDLE_IMGS=${BUNDLE_IMGS} \ 
           make catalog-build
 
       - name: Push Catalog image
