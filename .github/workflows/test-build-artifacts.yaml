@@ -146,8 +146,8 @@ jobs:
           fi
           
           # Set 'replaces' to previous version
-          VERSION = ${{ github.event.inputs.version }}
-          PREV_VERSION = ${{ steps.latest_tag.outputs.tag }}
+          VERSION=${{ github.event.inputs.version }}
+          PREV_VERSION=${{ steps.latest_tag.outputs.tag }}
           if ! grep -qF 'replaces: ansible-ai-connect-operator.v${PREV_VERSION}' bundle/manifests/ansible-ai-connect-operator.clusterserviceversion.yaml; then
             sed -i "/version: ${VERSION}/a \\  replaces: ansible-ai-connect-operator.v${PREV_VERSION}" ./bundle/manifests/ansible-ai-connect-operator.clusterserviceversion.yaml
           fi
