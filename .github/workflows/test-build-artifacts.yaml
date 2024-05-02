@@ -58,7 +58,8 @@ jobs:
         run: |
           set -e
           
-          tags_array=(${{ steps.existing_tags.outputs.tags//,/ }})
+          tags=${{ steps.existing_tags.outputs.tags }}
+          tags_array=(${ tags//,/ })
           filtered_tags=()
           for i in "${!tags_array[@]}" ; do [[ ${tags_array[$i]} =~ ^.+:[0-9]+\.[0-9]+\.[0-9]+$ ]] && filtered_tags+=(${tags_array[$i]}) ; done
           
