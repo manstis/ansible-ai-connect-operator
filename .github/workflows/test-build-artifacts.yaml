@@ -108,7 +108,7 @@ jobs:
       # -------------------
       - name: Build Bundle image
         run: |
-          make bundle bundle-build VERSION=${{ github.event.inputs.version }} IMG=${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }} BUNDLE_IMG=${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${{ github.event.inputs.version }}
+          make bundle bundle-build VERSION=${{ github.event.inputs.version }} IMG=${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }} BUNDLE_IMG=ansible-ai-connect-bundle:${{ github.event.inputs.version }}
 
       - name: Push Bundle image
         uses: redhat-actions/push-to-registry@v2.7.1
@@ -125,7 +125,7 @@ jobs:
       # -------------------
       - name: Build Catalog image
         run: |
-          make catalog-build CATALOG_IMG=${{ github.event.inputs.repository }}/ansible-ai-connect-catalog:${{ github.event.inputs.version }} BUNDLE_IMGS=${BUNDLE_IMGS}
+          make catalog-build CATALOG_IMG=ansible-ai-connect-catalog:${{ github.event.inputs.version }} BUNDLE_IMGS=${BUNDLE_IMGS}
 
       - name: Push Catalog image
         uses: redhat-actions/push-to-registry@v2.7.1
