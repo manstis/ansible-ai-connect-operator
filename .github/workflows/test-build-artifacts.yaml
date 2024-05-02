@@ -62,12 +62,17 @@ jobs:
           tags_array=(${tags//,/ })
           filtered_tags=()
           for i in "${!tags_array[@]}" ; do [[ ${tags_array[$i]} =~ ^.+:[0-9]+\.[0-9]+\.[0-9]+$ ]] && filtered_tags+=(${tags_array[$i]}) ; done
+          filtered_tags+=(${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${{ github.event.inputs.version }})
           output_tags=${filtered_tags[@]}
           output=${output_tags// /,}
-          echo ${output}
           echo "BUNDLE_IMGS=${output}" >> $GITHUB_ENV
           
           exit 0
+
+      - name: Debugging
+        id: debugging
+        run: |
+          echo ${BUNDLE_IMGS}
 
       # ===================
       # Operator
