@@ -51,13 +51,12 @@ jobs:
           registries: ${{ github.event.inputs.repository }}
           fullname: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get existing versions
         id: existing_versions
         run: |
-            echo "BUNDLE_IMGS=${{ steps.existing_tags.outputs.tags }} >> $GITHUB_ENV
+            echo "BUNDLE_IMGS=${{ steps.existing_tags.outputs.tags }}" >> $GITHUB_ENV
 
       # ===================
       # Operator
