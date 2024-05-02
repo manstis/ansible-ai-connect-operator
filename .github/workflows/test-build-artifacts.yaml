@@ -49,7 +49,7 @@ jobs:
         with:
           repository: "ansible-ai-connect-bundle"
           registries: ${{ github.event.inputs.repository }}
-          fullname: true
+          fullName: true
         env:
           INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
