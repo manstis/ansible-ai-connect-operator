@@ -36,10 +36,10 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Log into registry quay.io
+      - name: Log into registry
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
-          registry: quay.io/ansible/
+          registry: ${{ github.event.inputs.repository }}
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_TOKEN }}
 
@@ -88,14 +88,17 @@ jobs:
       - name: Build and store Operator image @ghcr
         run: |
           BUILD_ARGS="--build-arg OPERATOR_VERSION=${{ github.event.inputs.version }}" \
-          IMG=ghcr.io/${{ github.repository_owner }}/ansible-ai-connect-operator:${{ github.sha }} \
+          IMG=${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }} \
           make docker-buildx
 
-      - name: Publish Operator image to repository
-        run: |
-          docker buildx imagetools create \ 
-          ghcr.io/${{ github.repository_owner }}/ansible-ai-connect-operator:${{ github.sha }} \ 
-          -t ${{ github.event.inputs.repository }}/ansible-ai-connect-operator:${{ github.event.inputs.version }}
+      - name: Push Operator image
+        uses: redhat-actions/push-to-registry@v2.7.1
+        with:
+          image: ansible-ai-connect-operator
+          tags: ${{ github.event.inputs.version }}
+          registry: ${{ github.event.inputs.repository }}
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_TOKEN }}
       # ===================
 
       # ===================
