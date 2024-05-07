@@ -97,7 +97,7 @@ jobs:
           echo "-----"          
           echo "tags"
           echo $tags
-          tags_array=$tags | jq .[].ref
+          tags_array=$(jq -r .[].ref <<< "${tags}")
           echo "tags_array"
           echo $tags_array
           echo "-----"          
@@ -106,12 +106,12 @@ jobs:
           filtered_tags=()
           for i in "${!tags_array[@]}" ; do
             if [[ ${tags_array[$i]} =~ ^\"refs/tags/+([0-9]+\.[0-9]+\.[0-9]+)\"$ ]] ; then
-              filtered_tags+=(${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${BASH_REMATCH[1]}) ;
+              filtered_tags+=("${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${BASH_REMATCH[1]}") ;
             fi
           done
           
           # Include the version being built
-          filtered_tags+=(${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${{ github.event.inputs.version }})
+          filtered_tags+=("${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${{ github.event.inputs.version }}")
           
           # Convert array back to comma separated list
           output_tags=${filtered_tags[@]}
@@ -151,14 +151,14 @@ jobs:
       - name: Update ClusterServiceVersion
         run: |
           # No need to set 'replaces' if there is no previous version
-          if [[ ${{ steps.latest_tag.outputs.tag }} == "0.0.0" ]]; then
+          if [[ "${{ steps.latest_tag.outputs.tag }}" == "0.0.0" ]]; then
             >&2 echo "No previous version found."
             exit 0
           fi
           
           # Set 'replaces' to previous version
-          VERSION=${{ github.event.inputs.version }}
-          PREV_VERSION=${{ steps.latest_tag.outputs.tag }}
+          VERSION="${{ github.event.inputs.version }}"
+          PREV_VERSION="${{ steps.latest_tag.outputs.tag }}"
           if ! grep -qF 'replaces: ansible-ai-connect-operator.v${PREV_VERSION}' bundle/manifests/ansible-ai-connect-operator.clusterserviceversion.yaml; then
             sed -i "/version: ${VERSION}/a \\  replaces: ansible-ai-connect-operator.v${PREV_VERSION}" ./bundle/manifests/ansible-ai-connect-operator.clusterserviceversion.yaml
           fi
