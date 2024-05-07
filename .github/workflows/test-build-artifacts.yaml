@@ -93,6 +93,7 @@ jobs:
             ${{ steps.existing_tags.outputs.data }}
           END
           )
+          tags_array=$(jq -r .[].ref <<< "${tags}")
 
           # Filter array by tags that end with a semver 
           filtered_tags=()
@@ -112,8 +113,8 @@ jobs:
           echo "-----"          
           echo "filtered_tags"
           echo $filtered_tags
-          echo "output_tags"
-          echo $output_tags
+          echo "tags_array"
+          echo $tags_array
           echo "output"
           echo $output
           echo "-----"          
