@@ -89,7 +89,14 @@ jobs:
         run: |
           set -e
           
-          tags=${{ steps.existing_tags.outputs.data }}
+          tags=$(cat <<-END
+            ${{ steps.existing_tags.outputs.data }}
+          END
+          )
+  
+          echo $tags
+          tags_array=$tags | jq .[].ref
+          echo $tags_array
 
           # Filter array by tags that end with a semver 
           filtered_tags=()
