@@ -94,14 +94,6 @@ jobs:
           END
           )
 
-          echo "-----"          
-          echo "tags"
-          echo $tags
-          tags_array=$(jq -r .[].ref <<< "${tags}")
-          echo "tags_array"
-          echo $tags_array
-          echo "-----"          
-
           # Filter array by tags that end with a semver 
           filtered_tags=()
           for i in "${!tags_array[@]}" ; do
@@ -116,6 +108,15 @@ jobs:
           # Convert array back to comma separated list
           output_tags=${filtered_tags[@]}
           output=${output_tags// /,}
+
+          echo "-----"          
+          echo "filtered_tags"
+          echo $filtered_tags
+          echo "output_tags"
+          echo $output_tags
+          echo "output"
+          echo $output
+          echo "-----"          
           
           echo "BUNDLE_IMGS=${output}" >> $GITHUB_ENV
           
