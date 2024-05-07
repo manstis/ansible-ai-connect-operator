@@ -93,16 +93,20 @@ jobs:
             ${{ steps.existing_tags.outputs.data }}
           END
           )
-  
+
+          echo "-----"          
+          echo "tags"
           echo $tags
           tags_array=$tags | jq .[].ref
+          echo "tags_array"
           echo $tags_array
+          echo "-----"          
 
           # Filter array by tags that end with a semver 
           filtered_tags=()
           for i in "${!tags_array[@]}" ; do
-            if [[ ${tags_array[$i]} =~ ^.+([0-9]+\.[0-9]+\.[0-9]+)$ ]] ; then
-              filtered_tags+=(${BASH_REMATCH[1]}) ;
+            if [[ ${tags_array[$i]} =~ ^\"refs/tags/+([0-9]+\.[0-9]+\.[0-9]+)\"$ ]] ; then
+              filtered_tags+=(${{ github.event.inputs.repository }}/ansible-ai-connect-bundle:${BASH_REMATCH[1]}) ;
             fi
           done
           
