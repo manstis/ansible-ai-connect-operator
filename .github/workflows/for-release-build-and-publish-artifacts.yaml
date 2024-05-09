@@ -82,7 +82,7 @@ jobs:
         id: tag_name
         run: |
           echo "IMAGE_TAGS=-t ${{ env.REGISTRY }}/ansible-ai-connect-operator:${IMAGE_SEMVER_VERSION} -t ${{ env.REGISTRY }}/ansible-ai-connect-operator:latest" >> $GITHUB_OUTPUT
-          echo "TAG_VERSIONS=${IMAGE_SEMVER_VERSION}" >> $GITHUB_ENV
+          echo "REGISTRY_TAGS=${IMAGE_SEMVER_VERSION} latest" >> $GITHUB_ENV
       # ===============================
 
       # ===============================
@@ -126,7 +126,7 @@ jobs:
         uses: redhat-actions/push-to-registry@v2.7.1
         with:
           image: ansible-ai-connect-bundle
-          tags: ${{ env.TAG_VERSIONS }}
+          tags: ${{ env.REGISTRY_TAGS }}
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_TOKEN }}
@@ -185,7 +185,7 @@ jobs:
         uses: redhat-actions/push-to-registry@v2.7.1
         with:
           image: ansible-ai-connect-catalog
-          tags: ${{ env.TAG_VERSIONS }}
+          tags: ${{ env.REGISTRY_TAGS }}
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_TOKEN }}

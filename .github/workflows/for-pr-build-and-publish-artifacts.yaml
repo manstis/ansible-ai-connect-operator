@@ -82,8 +82,7 @@ jobs:
       - name: Tag Name
         id: tag_name
         run: |
-          echo "IMAGE_TAGS=-t ${REGISTRY}/ansible-ai-connect-operator:${IMAGE_SEMVER_VERSION} -t ${REGISTRY}/ansible-ai-connect-operator:latest" >> $GITHUB_OUTPUT
-          echo "TAG_VERSIONS=${IMAGE_SEMVER_VERSION}" >> $GITHUB_ENV
+          echo "IMAGE_TAGS=-t ${REGISTRY}/ansible-ai-connect-operator:${IMAGE_SEMVER_VERSION}" >> $GITHUB_OUTPUT
           echo "LABEL quay.expires-after=3d" >> ./Dockerfile # tag expires in 3 days
       # ===============================
 
@@ -107,13 +106,12 @@ jobs:
       - name: Build and tag Bundle images
         run: |
           make bundle bundle-build VERSION=${IMAGE_SEMVER_VERSION} IMG=q${{ env.REGISTRY }}/ansible-ai-connect-operator:${IMAGE_SEMVER_VERSION} BUNDLE_IMG=ansible-ai-connect-bundle:${IMAGE_SEMVER_VERSION}
-          docker tag ansible-ai-connect-bundle:${IMAGE_SEMVER_VERSION} ansible-ai-connect-bundle:latest
 
       - name: Push Bundle images to registry
         uses: redhat-actions/push-to-registry@v2.7.1
         with:
           image: ansible-ai-connect-bundle
-          tags: ${{ env.TAG_VERSIONS }}
+          tags: ${{ env.IMAGE_SEMVER_VERSION }}
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_TOKEN }}
@@ -125,13 +123,12 @@ jobs:
       - name: Build and tag Catalog images
         run: |
           make catalog-build CATALOG_IMG=ansible-ai-connect-catalog:${IMAGE_SEMVER_VERSION} BUNDLE_IMG=${{ env.REGISTRY }}/ansible-ai-connect-bundle:${IMAGE_SEMVER_VERSION}
-          docker tag ansible-ai-connect-catalog:${IMAGE_SEMVER_VERSION} ansible-ai-connect-catalog:latest
 
       - name: Push Catalog images to registry
         uses: redhat-actions/push-to-registry@v2.7.1
         with:
           image: ansible-ai-connect-catalog
-          tags: ${{ env.TAG_VERSIONS }}
+          tags: ${{ env.IMAGE_SEMVER_VERSION }}
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_TOKEN }}
