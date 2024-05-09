@@ -190,3 +190,34 @@ jobs:
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_TOKEN }}
       # ===============================
+
+      # ===============================
+      # Publish release and tags
+      # -------------------------------
+      - name: Generate operator.yaml
+        run: make generate-operator-yaml VERSION=${IMAGE_SEMVER_VERSION}
+        working-directory: ansible-ai-connect-operator
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          make_latest: true
+          name: Release ${{ env.IMAGE_SEMVER_VERSION }}
+          tag_name: ${{ env.IMAGE_SEMVER_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./ansible-ai-connect-operator/operator.yaml
+          asset_name: operator.yaml
+          asset_content_type: application/yaml
+      # ===============================
