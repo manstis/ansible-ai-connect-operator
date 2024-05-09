@@ -196,7 +196,6 @@ jobs:
       # -------------------------------
       - name: Generate operator.yaml
         run: make generate-operator-yaml VERSION=${IMAGE_SEMVER_VERSION}
-        working-directory: ansible-ai-connect-operator
 
       - name: Create Release
         id: create_release
@@ -211,13 +210,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Release Artifact
+      - name: Upload Release artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ansible-ai-connect-operator/operator.yaml
+          asset_path: operator.yaml
           asset_name: operator.yaml
           asset_content_type: application/yaml
       # ===============================
