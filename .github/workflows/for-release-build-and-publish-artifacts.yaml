@@ -15,7 +15,7 @@ on:
 
 jobs:
   verify:
-    if: ${{ github.event_name }} == 'workflow_dispatch'
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -86,13 +86,13 @@ jobs:
       # Build complete release version
       - name: Semver tags (generated)
         id: version_semver_generated
-        if: ${{ github.event_name }} != 'workflow_dispatch'
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           echo "IMAGE_SEMVER_VERSION=${{ needs.initialise.outputs.next_tag }}" >> $GITHUB_ENV
 
       - name: Semver tags (provided)
         id: version_semver_provided
-        if: ${{ github.event_name }} == 'workflow_dispatch'
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "IMAGE_SEMVER_VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
       # ===============================
