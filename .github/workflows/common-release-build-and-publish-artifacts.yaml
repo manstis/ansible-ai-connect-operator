@@ -1,52 +1,16 @@
-name: "[Release] Build and publish Operator, Bundle and Catalog artifacts"
+name: "[Common] Build and publish Operator, Bundle and Catalog artifacts"
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      version:
+      semver:
         description: 'The semver formatted version to release and tag'
         required: true
-      confirm:
-        description: 'Are you sure? Set this to yes.'
-        required: true
-        default: 'no'
 
 jobs:
-  verify:
-    runs-on: ubuntu-latest
-
-    steps:
-       - name: Verify inputs
-         run: |
-           set -e
-
-           if ! [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
-             exit 0
-           fi
-           
-           if [[ ${{ github.event.inputs.version }} == "" ]]; then
-             >&2 echo "Set version to continue."
-             exit 1
-           fi
-           
-           regex="^[0-9]+\.[0-9]+\.[0-9]+$"
-           if ! [[ ${{ github.event.inputs.version }} =~ $regex ]]; then
-             >&2 echo "Version is not correctly formatted. It should follow semver, x.y.z."
-             exit 1
-           fi
-
-           if [[ ${{ github.event.inputs.confirm }} != "yes" ]]; then
-             >&2 echo "Confirm must be 'yes'"
-             exit 1
-           fi
-           
-           exit 0
 
   initialise:
     uses: ./.github/workflows/common-build-jobs.yaml
-    needs: verify
     secrets: inherit
 
   build:
@@ -87,17 +51,10 @@ jobs:
       # Construct next version
       # -------------------------------
       # Build complete release version
-      - name: Semver tags (generated)
+      - name: Semver tags
         id: version_semver_generated
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
-          echo "IMAGE_SEMVER_VERSION=${{ needs.initialise.outputs.next_tag }}" >> $GITHUB_ENV
-
-      - name: Semver tags (provided)
-        id: version_semver_provided
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
-          echo "IMAGE_SEMVER_VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          echo "IMAGE_SEMVER_VERSION=${{ inputs.semver }}" >> $GITHUB_ENV
       # ===============================
 
       # ===============================

@@ -1,0 +1,57 @@
+name: "[Release] Build and publish Operator, Bundle and Catalog artifacts"
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The semver formatted version to release and tag'
+        required: true
+      confirm:
+        description: 'Are you sure? Set this to yes.'
+        required: true
+        default: 'no'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+       - name: Verify inputs
+         run: |
+           set -e
+
+           if ! [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+             exit 0
+           fi
+           
+           if [[ ${{ github.event.inputs.version }} == "" ]]; then
+             >&2 echo "Set version to continue."
+             exit 1
+           fi
+           
+           regex="^[0-9]+\.[0-9]+\.[0-9]+$"
+           if ! [[ ${{ github.event.inputs.version }} =~ $regex ]]; then
+             >&2 echo "Version is not correctly formatted. It should follow semver, x.y.z."
+             exit 1
+           fi
+
+           if [[ ${{ github.event.inputs.confirm }} != "yes" ]]; then
+             >&2 echo "Confirm must be 'yes'"
+             exit 1
+           fi
+           
+           exit 0
+
+  initialise:
+    uses: ./.github/workflows/common-build-jobs.yaml
+    needs: verify
+    secrets: inherit
+
+  build:
+    uses: ./.github/workflows/common-release-build-and-publish-artifacts.yaml
+    needs: initialise
+    with:
+      semver: ${{ github.event.inputs.version }}
+    secrets: inherit
