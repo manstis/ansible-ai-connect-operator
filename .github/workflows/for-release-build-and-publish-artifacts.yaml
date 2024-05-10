@@ -3,15 +3,15 @@ name: "[Release] Build and publish Operator, Bundle and Catalog artifacts"
 on:
   push:
     branches: [main]
-    workflow_dispatch:
-      inputs:
-        version:
-          description: 'The semver formatted version to release and tag'
-          required: true
-        confirm:
-          description: 'Are you sure? Set this to yes.'
-          required: true
-          default: 'no'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The semver formatted version to release and tag'
+        required: true
+      confirm:
+        description: 'Are you sure? Set this to yes.'
+        required: true
+        default: 'no'
 
 jobs:
   verify:
