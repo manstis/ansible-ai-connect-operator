@@ -121,30 +121,18 @@ jobs:
       # ===============================
       # Operator catalog
       # -------------------------------
-      # Get existing tags
-      - uses: octokit/request-action@v2.x
-        id: existing_tags
-        with:
-          route: GET /repos/${{ github.repository }}/git/matching-refs/tags
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Convert tags into set of bundle image references
+      # Convert existing tags into set of bundle image references
       - name: Build Catalog index Bundle image list
         id: build_bundle_image_list
         run: |
           set -e
 
           # Convert JSON to bash array
-          tags=$(cat <<-END
-            ${{ steps.existing_tags.outputs.data }}
-          END
-          )
-          tags_array=($(jq -r .[].ref <<< $tags))
+          tags_array=$(git tag -l --sort=v:refname)
 
           # Filter array by tags that end with a semver 
           filtered_tags=()
-          regex="refs\/tags\/([0-9]+\.[0-9]+\.[0-9]+)"
+          regex="^([0-9]+\.[0-9]+\.[0-9]+)$"
           for i in "${tags_array[@]}" ; do
             if [[ $i =~ $regex ]]; then
               filtered_tags+=("${{ env.REGISTRY }}/ansible-ai-connect-bundle:${BASH_REMATCH[1]}") ;
