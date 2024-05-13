@@ -1,0 +1,196 @@
+name: "[Common] Build and publish Operator, Bundle and Catalog artifacts"
+
+on:
+  workflow_call:
+    inputs:
+      operator_version_latest:
+        description: "The _latest_ Operator version"
+        required: true
+        type: string
+      operator_version_next:
+        description: "The _next_ Operator version"
+        required: true
+        type: string
+      service_version:
+        description: "The latest published version of the underlying service"
+        required: true
+        type: string
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: "quay.io/manstis"
+
+    steps:
+      # ===============================
+      # Checkout code
+      # -------------------------------
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      # ===============================
+
+      # ===============================
+      # Login to repositories
+      # -------------------------------
+      - name: Log into registry ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log into target registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      # ===============================
+
+      # ===============================
+      # Construct next version
+      # -------------------------------
+      # Build complete release version
+      - name: Semver tags
+        id: version_semver_generated
+        run: |
+          echo "IMAGE_SEMVER_VERSION=${{ inputs.operator_version_next }}" >> $GITHUB_ENV
+      # ===============================
+
+      # ===============================
+      # Create docker tags
+      # -------------------------------
+      - name: Tag Name
+        id: tag_name
+        run: |
+          echo "IMAGE_TAGS=-t ${{ env.REGISTRY }}/ansible-ai-connect-operator:${IMAGE_SEMVER_VERSION} -t ${{ env.REGISTRY }}/ansible-ai-connect-operator:latest" >> $GITHUB_OUTPUT
+          echo "REGISTRY_TAGS=${IMAGE_SEMVER_VERSION} latest" >> $GITHUB_ENV
+      # ===============================
+
+      # ===============================
+      # Operator
+      # -------------------------------
+      - name: Build and store Operator image in @ghcr
+        run: |
+          BUILD_ARGS="--build-arg DEFAULT_AI_CONNECT_VERSION=${{ inputs.service_version }} --build-arg OPERATOR_VERSION=${IMAGE_SEMVER_VERSION}" \
+          IMG=ghcr.io/${{ github.repository_owner }}/ansible-ai-connect-operator:${{ github.sha }} \
+          make docker-buildx
+
+      - name: Publish Operator images to registries
+        run: |
+          docker buildx imagetools create ghcr.io/${{ github.repository_owner }}/ansible-ai-connect-operator:${{ github.sha }} ${{ steps.tag_name.outputs.IMAGE_TAGS }}
+      # ===============================
+
+      # ===============================
+      # Operator bundle
+      # -------------------------------
+      - name: Build and tag Bundle images
+        run: |
+          make bundle bundle-build VERSION=${IMAGE_SEMVER_VERSION} IMG=${{ env.REGISTRY }}/ansible-ai-connect-operator:${IMAGE_SEMVER_VERSION} BUNDLE_IMG=ansible-ai-connect-bundle:${IMAGE_SEMVER_VERSION}
+          docker tag ansible-ai-connect-bundle:${IMAGE_SEMVER_VERSION} ansible-ai-connect-bundle:latest
+
+      - name: Update ClusterServiceVersion
+        run: |
+          # No need to set 'replaces' if there is no previous version
+          if [[ "${{ inputs.operator_version_latest }}" == "0.0.0" ]]; then
+            >&2 echo "No previous version found."
+            exit 0
+          fi
+          
+          # Set 'replaces' to previous version
+          VERSION="${IMAGE_SEMVER_VERSION}"
+          PREV_VERSION="${{ inputs.operator_version_latest }}"
+          if ! grep -qF 'replaces: ansible-ai-connect-operator.v${PREV_VERSION}' bundle/manifests/ansible-ai-connect-operator.clusterserviceversion.yaml; then
+            sed -i "/version: ${VERSION}/a \\  replaces: ansible-ai-connect-operator.v${PREV_VERSION}" ./bundle/manifests/ansible-ai-connect-operator.clusterserviceversion.yaml
+          fi
+
+      - name: Push Bundle images to registry
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          image: ansible-ai-connect-bundle
+          tags: ${{ env.REGISTRY_TAGS }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      # ===============================
+
+      # ===============================
+      # Operator catalog
+      # -------------------------------
+      # Convert existing tags into set of bundle image references
+      - name: Build Catalog index Bundle image list
+        id: build_bundle_image_list
+        run: |
+          set -e
+
+          # Convert JSON to bash array
+          tags_array=($(git tag -l --sort=v:refname))
+
+          # Filter array by tags that end with a semver 
+          filtered_tags=()
+          regex="^([0-9]+\.[0-9]+\.[0-9]+)$"
+          for i in "${tags_array[@]}" ; do
+            if [[ $i =~ $regex ]]; then
+              filtered_tags+=("${{ env.REGISTRY }}/ansible-ai-connect-bundle:${BASH_REMATCH[1]}") ;
+            fi
+          done
+
+          # Include the version being built
+          filtered_tags+=("${{ env.REGISTRY }}/ansible-ai-connect-bundle:${IMAGE_SEMVER_VERSION}")
+
+          # Convert array back to comma separated list
+          output_tags=${filtered_tags[@]}
+          output=${output_tags// /,}
+
+          echo "BUNDLE_IMGS=${output}" >> $GITHUB_ENV
+
+          exit 0
+
+      - name: Build and tag Catalog images
+        run: |
+          make catalog-build CATALOG_IMG=ansible-ai-connect-catalog:${IMAGE_SEMVER_VERSION} BUNDLE_IMGS=${BUNDLE_IMGS}
+          docker tag ansible-ai-connect-catalog:${IMAGE_SEMVER_VERSION} ansible-ai-connect-catalog:latest
+
+      - name: Push Catalog images to registry
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          image: ansible-ai-connect-catalog
+          tags: ${{ env.REGISTRY_TAGS }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_TOKEN }}
+      # ===============================
+
+      # ===============================
+      # Publish release and tags
+      # -------------------------------
+      - name: Generate operator.yaml
+        run: make generate-operator-yaml VERSION=${IMAGE_SEMVER_VERSION}
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          make_latest: true
+          name: Release ${{ env.IMAGE_SEMVER_VERSION }}
+          tag_name: ${{ env.IMAGE_SEMVER_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: operator.yaml
+          asset_name: operator.yaml
+          asset_content_type: application/yaml
+      # ===============================
