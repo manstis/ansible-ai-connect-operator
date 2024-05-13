@@ -1,0 +1,25 @@
+name: "[Common] Get ansible-ai-connect-service version"
+
+on:
+  workflow_call:
+    outputs:
+      service_version:
+        description: "The latest published version of ansible-ai-connect-service"
+        value: ${{ jobs.get_service_version.outputs.service_version }}
+
+jobs:
+  get_service_version:
+    runs-on: ubuntu-latest
+
+    outputs:
+      service_version: ${{ steps.read_service_version.outputs.service_version }}
+
+    steps:
+      # ===============================
+      # Read the latest ai-connect version
+      # -------------------------------
+      - name: Get latest ai-connect version
+        id: read_service_version
+        run: |
+          echo "service_version=$(jq .ansible_ai_connect_service.imageTag version_info.json)" >> $GITHUB_OUTPUT
+      # ===============================
