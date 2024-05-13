@@ -23,15 +23,15 @@ jobs:
       - name: Debug
         id: debug
         run: |
-          echo "operator_version_latest: ${{ needs.get_operator_versions.operator_version_latest }}"
-          echo "operator_version_next: ${{ needs.get_operator_versions.operator_version_next }}"
-          echo "cheese: ${{ needs.get_operator_versions.cheese }}"
+          echo "operator_version_latest: ${{ needs.get_operator_versions.outputs.operator_version_latest }}"
+          echo "operator_version_next: ${{ needs.get_operator_versions.outputs.operator_version_next }}"
+          echo "cheese: ${{ needs.get_operator_versions.outputs.cheese }}"
 
   build:
     uses: ./.github/workflows/common-release-build-and-publish-artifacts.yaml
     needs: [get_operator_versions, get_service_version]
     with:
-      operator_version_latest: ${{ needs.get_operator_versions.operator_version_latest }}
-      operator_version_next: ${{ needs.get_operator_versions.operator_version_next }}
-      service_version: ${{ needs.get_service_version.service_version }}
+      operator_version_latest: ${{ needs.get_operator_versions.outputs.operator_version_latest }}
+      operator_version_next: ${{ needs.get_operator_versions.outputs.operator_version_next }}
+      service_version: ${{ needs.get_service_version.outputs.service_version }}
     secrets: inherit
