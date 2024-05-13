@@ -1,26 +1,22 @@
-name: "Common build and publish related jobs"
+name: "[Common] Get Operator versions"
 
 on:
   workflow_call:
     outputs:
-      latest_ai_connect_version:
-        description: "The latest published version of ansible-ai-connect-service"
-        value: ${{ jobs.initialise.outputs.latest_ai_connect_version }}
-      latest_tag:
-        description: "The _latest_ semver version"
-        value: ${{ jobs.initialise.outputs.latest_tag }}
-      next_tag:
-        description: "The _next_ semver version"
-        value: ${{ jobs.initialise.outputs.next_tag }}
+      operator_version_latest:
+        description: "The _latest_ Operator version"
+        value: ${{ jobs.get_operator_versions.outputs.operator_version_latest }}
+      operator_version_next:
+        description: "The _next_ Operator version"
+        value: ${{ jobs.get_operator_versions.outputs.operator_version_next }}
 
 jobs:
-  initialise:
+  get_operator_versions:
     runs-on: ubuntu-latest
 
     outputs:
-      latest_ai_connect_version: ${{ steps.latest_ai_connect_version.outputs.latest_ai_connect_version }}
-      latest_tag: ${{ steps.set_output_parameters.outputs.latest_tag }}
-      next_tag: ${{ steps.set_output_parameters.outputs.next_tag }}
+      operator_version_latest: ${{ steps.set_output_parameters.outputs.latest_tag }}
+      operator_version_next: ${{ steps.set_output_parameters.outputs.next_tag }}
 
     steps:
       # ===============================
@@ -57,13 +53,4 @@ jobs:
         run: |
           echo "latest_tag=${{ steps.latest_tag.outputs.tag }}" >> $GITHUB_OUTPUT
           echo "next_tag=${{ steps.next_tag.outputs.patch }}" >> $GITHUB_OUTPUT
-      # ===============================
-
-      # ===============================
-      # Read the latest ai-connect version
-      # -------------------------------
-      - name: Get latest ai-connect version
-        id: latest_ai_connect_version
-        run: |
-          echo "latest_ai_connect_version=$(jq .ansible_ai_connect_service.imageTag version_info.json)" >> $GITHUB_OUTPUT
       # ===============================
