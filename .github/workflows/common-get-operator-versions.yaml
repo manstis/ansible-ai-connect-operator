@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      operator_version_latest: ${{ steps.set_output_parameters.outputs.latest_tag }}
+      operator_version_latest: ${{ steps.latest_tag.outputs.latest_tag }}
       operator_version_next: ${{ steps.set_output_parameters.outputs.next_tag }}
 
     steps:
