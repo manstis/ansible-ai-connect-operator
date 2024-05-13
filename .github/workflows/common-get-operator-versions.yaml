@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      operator_version_latest: ${{ steps.set_output_parameters.outputs.latest_tag }}
+      operator_version_latest: ${{ steps.latest_tag.outputs.latest_tag }}
       operator_version_next: ${{ steps.set_output_parameters.outputs.next_tag }}
 
     steps:
@@ -48,6 +48,5 @@ jobs:
       - name: Set output parameters
         id: set_output_parameters
         run: |
-          echo "latest_tag=${{ steps.latest_tag.outputs.tag }}" >> $GITHUB_OUTPUT
           echo "next_tag=${{ steps.next_tag.outputs.patch }}" >> $GITHUB_OUTPUT
       # ===============================
