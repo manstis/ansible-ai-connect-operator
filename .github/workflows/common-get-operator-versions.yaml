@@ -4,11 +4,11 @@ on:
   workflow_call:
     outputs:
       operator_version_latest:
-        description: "The _latest_ semver version"
         value: ${{ jobs.get_operator_versions.outputs.operator_version_latest }}
       operator_version_next:
-        description: "The _next_ semver version"
         value: ${{ jobs.get_operator_versions.outputs.operator_version_next }}
+      cheese:
+        value: ${{ jobs.get_operator_versions.outputs.cheese }}
 
 jobs:
   get_operator_versions:
@@ -17,6 +17,7 @@ jobs:
     outputs:
       operator_version_latest: ${{ steps.set_output_parameters.outputs.latest_tag }}
       operator_version_next: ${{ steps.set_output_parameters.outputs.next_tag }}
+      cheese: "cheese"
 
     steps:
       # ===============================
