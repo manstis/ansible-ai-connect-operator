@@ -167,7 +167,7 @@ spec:
             secretKeyRef:
               name: '{{ model_config_secret_name }}'
               key: model_api_key
-        - name: ANSIBLE_AI_MODEL_MESH_MODEL_NAME
+        - name: ANSIBLE_AI_MODEL_MESH_MODEL_ID
           valueFrom:
             secretKeyRef:
               name: '{{ model_config_secret_name }}'
