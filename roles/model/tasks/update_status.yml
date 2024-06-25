@@ -22,7 +22,7 @@
         container: "model-api"
         command: >-
           bash -c "echo 'import pkg_resources;
-          print(pkg_resources.get_distribution(\"ansible-wisdom\").version)'
+          print(pkg_resources.get_distribution(\"ansible-ai-connect\").version)'
           | wisdom-manage shell"
       register: instance_version
       changed_when: false
