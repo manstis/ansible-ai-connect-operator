@@ -39,7 +39,7 @@ spec:
 
 ## Model service `Secret`
 
-`spec.model_config_secret_name` should be set to the name of an existing `Secret`. The Operator will use the values set therein to configure the model service integration. The `Secret` must contain the following values:
+`spec.model_config_secret_name` should be set to the name of an existing `Secret`. The Operator will use the values set there in to configure the model service integration. The `Secret` must contain the following values:
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -52,10 +52,12 @@ stringData:
   model_api_key: <WCA API Key>
   model_id: <WCA Model Id>
   model_type: <WCA type[2]>
+  model_verify_ssl: <BOOL [3]>
 type: Opaque
 ```
 - [1] `username` is only required for `wca-onprem`. The value is discarded for `wca`.
-- [2] `model_type` is either `wca` or `wca-onprem`
+- [2] `model_type` is either `wca` or `wca-onprem`.
+- [3] `model_verify_ssl` is optional and defaults to True. Changing this value is discouraged.
 
 The `AnsibleAIConnect` configuration would look like this:
 ```yaml

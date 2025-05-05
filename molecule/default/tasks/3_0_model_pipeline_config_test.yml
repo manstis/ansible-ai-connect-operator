@@ -42,3 +42,9 @@
         that:
           - '"my-ai-model_name" in model_mesh_config'
         fail_msg: ANSIBLE_AI_MODEL_MESH_CONFIG did not contain expected model_id. Expected 'my-ai-model_id'.
+
+    - name: Assert verify_ssl is True by default
+      ansible.builtin.assert:
+        that:
+          - '"verify_ssl: True" in model_mesh_config'
+        fail_msg: ANSIBLE_AI_MODEL_MESH_CONFIG doesn't have verify_ssl enabled by default.

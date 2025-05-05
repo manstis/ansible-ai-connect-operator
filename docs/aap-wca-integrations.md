@@ -3,6 +3,7 @@
 When deploying Ansible AI Connect service through operator, you will need to configure the integrations with Ansible Automation Platform and IBM watsonx Code Assistant. This is accomplished by providing `Secret`s with the necessary configuration details.
 
 ## Table of Contents
+
 - [Integrating with Ansible Automation Platform and IBM WCA](#integrating-with-ansible-automation-platform-and-ibm-wca)
   - [Table of Contents](#table-of-contents)
   - [Integrating with Ansible Automation Platform](#integrating-with-ansible-automation-platform)
