@@ -88,6 +88,7 @@ stringData:
   chatbot_token: <Chatbot LLM access token>
   chatbot_llm_provider_type: <Chatbot LLM provider type>
   chatbot_context_window_size: <Chatbot LLM context window size>
+  chatbot_temperature_override: <Chatbot LLM temperature parameter>
 type: Opaque
 ```
 **Required Parameters**
@@ -103,6 +104,18 @@ following default values will be used:
 
 * `chatbot_llm_provider_type`: `rhoai_vllm`
 * `chatbot_context_window_size`: `128000`
+
+`chatbot_temperature_override` is also optional.  It is provided for 
+following Open AI models that do not support the default temperature setting used for
+other Open AI models:
+
+* `o1`
+* `o3-mini`
+* `o4-mini`
+
+When one of these models is used, set `chatbot_temperature_override` to `null`,
+which disables the default temperature setting.
+
 
 ## Troubleshooting
 
