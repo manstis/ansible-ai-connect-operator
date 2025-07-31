@@ -80,15 +80,15 @@
 
 # ============================================
 # Retrieve and update Chatbot status
-# ============================================
+# --------------------------------------------
 - block:
-    - name: Retrieve Chatbot instance version
+    - name: Set Chatbot instance version
       kubernetes.core.k8s_exec:
         namespace: "{{ ansible_operator_meta.namespace }}"
         pod: "{{ chatbot_api_pod_name }}"
         container: "ansible-chatbot"
         command: >-
-          bash -c "python3.11 runner.py --version"
+          bash -c "cat /.llama/distributions/ansible-chatbot/ansible-chatbot-version-info.json | jq -r .version"
       register: chatbot_instance_version
       changed_when: false
 
