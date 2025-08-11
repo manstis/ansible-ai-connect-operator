@@ -57,7 +57,7 @@ data:
               namespace: null
               db_path: ${env.PROVIDERS_DB_DIR:=/.llama/data/distributions/ansible-chatbot}/responses_store.db
             tools_filter:
-              enabled: false
+              enabled: true
               model_id: ${env.INFERENCE_MODEL_FILTER:=}
       datasetio:
         - provider_id: localfs
